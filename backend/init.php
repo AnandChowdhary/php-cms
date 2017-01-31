@@ -17,16 +17,20 @@
 	// Site
 	class siteSettings {
 		function siteSettings() {
-			$this -> url = "http://localhost:8888/clients/cms/";
 			$this -> name = "Driffle";
 			$this -> adminEmail = "anandchowdhary@gmail.com";
 			$this -> adminPassword = "anand01";
 			$this -> facebookUsername = "drifflecom";
 			$this -> twitterHandle = "@drifflecom";
-			$this -> maxPosts = 3;
 		}
 	}
 	$site = new siteSettings();
+	function getMaxPosts() {
+		return 3;
+	}
+	function getSiteUrl() {
+		return "http://localhost:8888/clients/cms/";
+	}
 
 	// Auth
 	function logIn($username, $password) {
@@ -64,7 +68,7 @@
 
 	// Profile
 	function getProfile($username) {
-		return DB::queryFirstRow("SELECT followers, following, username, name, shortbio, listfollowers, listfollowing FROM user WHERE username=%s", $username);
+		return DB::queryFirstRow("SELECT * FROM user WHERE username=%s", $username);
 	}
 	function getNumPosts($username) {
 		DB::query("SELECT id FROM posts WHERE author=%s", $username);
@@ -83,21 +87,35 @@
 	function currUrl($url) {
 		return ($url == "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
 	}
+	function listCategories() {
+		return DB::query("SELECT * FROM categories");
+	}
+	function listPosts() {
+		return DB::query("SELECT slug FROM posts ORDER BY id DESC LIMIT %d OFFSET %d", getMaxPosts(), $offset);
+	}
 
 	// Users
 	function getUsers() {
-		return DB::query("SELECT username, name, shortbio FROM user");
+		return DB::query("SELECT username, name, shortbio, listfollowers FROM user");
 	}
 	function getProfilePicture($username) {
 		$user = DB::queryFirstRow("SELECT email FROM user WHERE username=%s", $username);
 		return "https://secure.gravatar.com/avatar/" . md5($user["email"]) . "?s=96&d=mm&r=g";
 	}
 	function listUser($userProfile) {
-		echo "<a href='" . $site -> url . "profile/" . $userProfile["username"] . "' style='margin-bottom: 10px; display: block; text-decoration: none; line-height: 1.5; border-radius: 4px; padding: 15px; border: 1px solid #ccc;'>
+		if ($userProfile["username"] == $_SESSION["username"]) {
+			$button = '<a href="#" class="btn" style="position: absolute; right: 19px; top: 19px">Edit Profile</a>';
+		} else if (in_array($_SESSION["username"], unserialize($userProfile["listfollowers"]))) {
+			$button = '<button data-user="' . getSiteUrl() . 'backend/unfollow.php?user=' . $userProfile["username"] . '" class="btn unfollow-btn" style="position: absolute; right: 19px; top: 19px">Unfollow</button>';
+		} else {
+			$button = '<button data-user="' . getSiteUrl() . 'backend/follow.php?user=' . $userProfile["username"] . '" class="btn primary unfollow-btn" style="position: absolute; right: 19px; top: 19px">Follow</button>';
+		}
+		echo "<div style='position: relative; margin-bottom: 10px; display: block; text-decoration: none; line-height: 1.5; border-radius: 4px; padding: 15px; border: 1px solid #ccc;'>
 			<img style='height: 3em; float: left; margin-right: 15px; border-radius: 100%' alt='" . $userProfile["name"] . "' src='" . getProfilePicture($userProfile["username"]) . "'>
-			<strong>" . $userProfile["name"] . "</strong><br>
+			<strong><a href='" . getSiteUrl() . "profile/" . $userProfile["username"] . "'>" . $userProfile["name"] . "</a></strong><br>
 			" . $userProfile["shortbio"] . "
-		</a>";
+			" . $button . "
+		</div>";
 	}
 	function followUser($user) {
 		$account = DB::queryFirstRow("SELECT followers, listfollowers FROM user WHERE username=%s", $user);
@@ -157,7 +175,7 @@
 	}
 
 	// Posts
-	function savePost($title, $tags, $content) {
+	function savePost($title, $tags, $content, $status) {
 		$slug = str_replace(' ', '-', $title);
 		$slug = strtolower(preg_replace('/[^A-Za-z0-9\-]/', '', $slug));
 		$letters = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890";
@@ -168,6 +186,7 @@
 			"author" => $_SESSION["username"],
 			"title" => $title,
 			"tags" => $tags,
+			"status" => $status,
 			"content" => $content,
 			"postedon" => date("Y-m-d h:i:sa")
 		));

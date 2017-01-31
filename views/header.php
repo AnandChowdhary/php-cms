@@ -20,6 +20,9 @@
 		$category = $_GET["slug"];
 		$category_name = fCategory($category);
 		$page_title = $category_name . " | " . $site -> name;
+	} elseif ($page == "profile") {
+		$profile = getProfile($_GET["username"]);
+		$page_title = $profile["name"] . " (@" . $profile["username"] . ") | " . $site -> name;
 	}
 ?>
 <!doctype html>
@@ -28,7 +31,7 @@
 		<meta charset="utf-8">
 		<title><?php echo $page_title; ?></title>
 		<?php if ($page == "post") { ?><meta property="og:type" content="article">
-		<meta property="og:url" content="<?php echo $site -> url . "post/" . $_GET["slug"]; ?>">
+		<meta property="og:url" content="<?php echo getSiteUrl() . "post/" . $_GET["slug"]; ?>">
 		<meta property="og:title" content="<?php echo $post["title"]; ?>">
 		<meta property="og:description" content="<?php echo getSummary($post["content"]); ?>">
 		<meta property="og:updated_time" content="<?php echo $post["postedon"]; ?>">
@@ -44,15 +47,20 @@
 		<meta name="description" content="<?php echo getSummary($post["content"]); ?>">
 		<meta name="keywords" content="<?php echo $keywords; ?>">
 		<meta name="author" content="<?php echo $user["name"]; ?>">
-		<link rel="canonical" href="<?php echo $site -> url . "post/" . $_GET["slug"]; ?>">
+		<link rel="canonical" href="<?php echo getSiteUrl() . "post/" . $_GET["slug"]; ?>">
 		<meta property="op:markup_version" content="v1.0">
-		<?php } elseif ($page == "category") { ?><link rel="canonical" href="<?php echo $site -> url . "category/" . $_GET["slug"]; ?>">
-		<meta property="og:url" content="<?php echo $site -> url . "category/" . $_GET["slug"]; ?>">
+		<?php } elseif ($page == "profile") { ?><link rel="canonical" href="<?php echo getSiteUrl() . "profile/" . $_GET["slug"]; ?>">
+		<meta property="og:url" content="<?php echo getSiteUrl() . "profile/" . $_GET["slug"]; ?>">
+		<meta property="og:title" content="<?php echo $page_title; ?>">
+		<meta name="twitter:title" content="<?php echo $page_title; ?>">
+		<?php } elseif ($page == "category") { ?><link rel="canonical" href="<?php echo getSiteUrl() . "category/" . $_GET["slug"]; ?>">
+		<meta property="og:url" content="<?php echo getSiteUrl() . "category/" . $_GET["slug"]; ?>">
 		<meta property="og:title" content="<?php echo $page_title; ?>">
 		<meta name="twitter:title" content="<?php echo $page_title; ?>">
 		<?php } ?><meta property="og:site_name" content="<?php echo $site -> name; ?>">
 		<meta name="twitter:card" content="summary">
 		<meta name="twitter:site" content="<?php echo $site -> twitterHandle; ?>">
+		<link rel="stylesheet" href="<?php echo getSiteUrl(); ?>assets/alloy.css">
 		<!-- Custom code -->
 		<style>
 			body { max-width: 600px; margin: 50px auto; font: menu; font-size: 100% }
@@ -69,14 +77,15 @@
 	</head>
 	<body>
 		<nav>
-			<a href="<?php echo $site -> url; ?>">home</a>
+			<a href="<?php echo getSiteUrl(); ?>">home</a>
 		<?php if ($loggedIn) { ?>
-			<a href="<?php echo $site -> url . "profile/" . $_SESSION["username"]; ?>">profile</a>
-			<a href="<?php echo $site -> url; ?>new">new</a>
-			<a href="<?php echo $site -> url; ?>logout">logout</a>
+			<a href="<?php echo getSiteUrl() . "profile/" . $_SESSION["username"]; ?>">profile</a>
+			<a href="<?php echo getSiteUrl(); ?>new">new</a>
+			<a href="<?php echo getSiteUrl(); ?>drafts">drafts</a>
+			<a href="<?php echo getSiteUrl(); ?>logout">logout</a>
 		<?php } else { ?>
-			<a href="<?php echo $site -> url; ?>login">login</a>
-			<a href="<?php echo $site -> url; ?>register">register</a>
+			<a href="<?php echo getSiteUrl(); ?>login">login</a>
+			<a href="<?php echo getSiteUrl(); ?>register">register</a>
 		<?php } ?>
-			<a href="<?php echo $site -> url; ?>users">users</a>
+			<a href="<?php echo getSiteUrl(); ?>users">users</a>
 		</nav>

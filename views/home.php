@@ -1,33 +1,14 @@
 <h1>Welcome to <?php echo $site -> name; ?></h1>
-<div id="content">Loading...</div>
+<div id="postscontent">Loading...</div>
 <div><button class="btn btn-secondary load-more" style="display: none">Load more</button></div>
 <script>
-	offset = 0;
-	document.querySelector(".load-more").addEventListener("click", function() {
-		offset+=3;
-		sendRequest(offset);
-	});
-	document.addEventListener("DOMContentLoaded", function() {
-		setTimeout(function() {
-			sendRequest(offset);
-		}, 1000);
-	});
-	function sendRequest(offset) {
-		var request = new XMLHttpRequest();
-		request.open("GET", "<?php echo $site -> url; ?>backend/archive.php?offset=" + offset, true);
-		request.onload = function() {
-			if (request.status >= 200 && request.status < 400) {
-				if (request.responseText == "") {
-					document.querySelector(".load-more").parentNode.innerHTML = "That's all, folks!";
-				} else {
-					if (document.querySelector("#content").innerHTML == "Loading...") {
-						document.querySelector("#content").innerHTML = "";
-					}
-					document.querySelector("#content").innerHTML += request.responseText;
-					document.querySelector(".load-more").style.display = "block";
-				}
-			}
-		};
-		request.send();
+	window.onload = function() {
+		offset = -<?php echo getMaxPosts(); ?>;
+		$(".load-more").click(function() {
+			offset += <?php echo getMaxPosts(); ?>;
+			console.log(offset);
+			loadPosts("<?php echo getSiteUrl(); ?>backend/archive.php?offset=" + offset);
+		});
+		$(".load-more").click();
 	}
 </script>
