@@ -103,16 +103,32 @@
 		case "about": ?>
 <table style="width: 100%; line-height: 2">
 	<tr>
+		<td><strong>Name</strong></td>
+		<td><?php echo $profile["name"]; ?></td>
+	</tr>
+	<tr>
+		<td><strong>Username</strong></td>
+		<td>@<?php echo $profile["username"]; ?></td>
+	</tr>
+	<tr>
+		<td><strong><?php echo $site -> name == "Driffle" ? "Hobbies" : "About"; ?></strong></td>
+		<td><?php echo $profile["listhobbies"]; ?></td>
+	</tr>
+	<tr>
 		<td><strong>City</strong></td>
 		<td><?php echo $profile["city"]; ?></td>
 	</tr>
 	<tr>
 		<td><strong>Facebook</strong></td>
-		<td><?php echo $profile["facebook"]; ?></td>
+		<td><?php echo linkify($profile["facebook"]); ?></td>
 	</tr>
 	<tr>
 		<td><strong>Twitter</strong></td>
-		<td><?php echo $profile["twitter"]; ?></td>
+		<td><?php echo linkify($profile["twitter"]); ?></td>
+	</tr>
+	<tr>
+		<td><strong>Website</strong></td>
+		<td><?php echo linkify($profile["website"]); ?></td>
 	</tr>
 	<tr>
 		<td><strong>Phone</strong></td>

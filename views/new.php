@@ -43,7 +43,7 @@
 		<p>
 			<label>
 				Institution
-				<input type="text" name="extratag4" value="<?php echo getShortBio($_SESSION["username"]); ?>" disabled>
+				<input type="text" name="extratag4" value="<?php echo getShortBio($_SESSION["username"]); ?>">
 			</label>
 		</p>
 	</div>

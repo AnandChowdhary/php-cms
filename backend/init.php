@@ -102,6 +102,10 @@
 		$user = DB::queryFirstRow("SELECT email FROM user WHERE username=%s", $username);
 		return "https://secure.gravatar.com/avatar/" . md5($user["email"]) . "?s=96&d=mm&r=g";
 	}
+	function getName($username) {
+		$user = DB::queryFirstRow("SELECT name FROM user WHERE username=%s", $username);
+		return $user["name"];
+	}
 	function getShortBio($username) {
 		$user = DB::queryFirstRow("SELECT shortbio FROM user WHERE username=%s", $username);
 		return $user["shortbio"];
@@ -244,6 +248,9 @@
 	function getPost($slug) {
 		return DB::queryFirstRow("SELECT * FROM posts WHERE slug=%s", $slug);
 	}
+	function sidebarPosts() {
+		return DB::query("SELECT type, slug, postedon, content, title FROM (SELECT type, slug, postedon, content, title FROM posts ORDER BY rand() LIMIT 2) T1 ORDER BY title");
+	}
 	function deletePost($slug) {
 		$post = DB::queryFirstRow("SELECT author FROM posts WHERE slug=%s", $slug);
 		if ($post["author"] == $_SESSION["username"]) {
@@ -283,6 +290,10 @@
 
 
 	// Formatting
+	function linkify($string) {
+		$url = '@(http)?(s)?(://)?(([a-zA-Z])([-\w]+\.)+([^\s\.]+[^\s]*)+[^,.\s])@';
+		return preg_replace($url, '<a href="http$2://$4" target="_blank">$0</a>', $string);
+	}
 	function time_elapsed_string($datetime, $full = false) {
 		$now = new DateTime;
 		$ago = new DateTime($datetime);

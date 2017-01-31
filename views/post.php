@@ -12,7 +12,26 @@
 <h1><?php echo $post["title"]; ?></h1>
 <p>Posted <?php echo time_elapsed_string($post["postedon"]); ?> under <a href="<?php echo getSiteUrl() . "category/" . $post["tags"]; ?>"><?php echo fCategory($post["tags"]); ?></a></p>
 <div style="margin-bottom: 30px"><?php echo $post["content"]; ?></div>
-
+<?php if ($post["tags"] == "events") { ?>
+<table style="width: 100%">
+	<tr>
+		<td><strong>Date</strong></td>
+		<td><?php echo $post["extratag1"]; ?></td>
+	</tr>
+	<tr>
+		<td><strong>Venue</strong></td>
+		<td><?php echo $post["extratag2"]; ?></td>
+	</tr>
+	<tr>
+		<td><strong>Society</strong></td>
+		<td><?php echo $post["extratag3"]; ?></td>
+	</tr>
+	<tr>
+		<td><strong>Institution</strong></td>
+		<td><?php echo $post["extratag4"]; ?></td>
+	</tr>
+</table>
+<?php } ?>
 <?php if ($post["author"] == $_SESSION["username"]) { ?>
 <p><a href="<?php echo getSiteUrl() . "edit/" . $post["slug"]; ?>">Edit this post</a></p>
 <?php } ?>
