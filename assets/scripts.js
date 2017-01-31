@@ -16,6 +16,18 @@ function loadPosts(url) {
 	}, 1);
 }
 
+$(window).on("load", function() {
+	setInterval(function() {
+		if ($(".load-more").length) {
+			var ht1 = $(".load-more").offset().top;
+			var ht2 = $("body").scrollTop() + window.innerHeight;
+			if (ht2 >= ht1) {
+				$(".load-more").click();
+			}
+		}
+	}, 5000);
+});
+
 $(".follow-btn").click(function() {
 	if ($(this).html() == "Follow") {
 		$(this).removeClass("primary");
@@ -45,4 +57,13 @@ $(".new-edit-form").submit(function(e) {
 	$(this).submit();
 	e.preventDefault();
 	return false;
+});
+
+$("select[name='tags']").change(function() {
+	console.log($(this).val());
+	if ($(this).val() === "events") {
+		$(".only-events").show();
+	} else {
+		$(".only-events").hide();
+	}
 });

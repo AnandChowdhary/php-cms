@@ -5,11 +5,87 @@
 		$tab = "posts";
 	}
 ?>
+<?php if ($editProfile == 1) { $profile = getProfile($_SESSION["username"]); ?>
+<h1>Edit Profile</h1>
+<form method="post" action="<?php echo getSiteUrl(); ?>backend/edit.php">
+	<h2>Your Information</h2>
+	<p>
+		<label>
+			Username: 
+			<input type="text" value="<?php echo $profile["username"] ?>" disabled>
+		</label>
+	</p>
+	<p>
+		<label>
+			Name: 
+			<input type="text" name="name" value="<?php echo $profile["name"] ?>">
+		</label>
+	</p>
+	<p>
+		<label>
+			About: 
+			<textarea name="hobbies"><?php echo $profile["listhobbies"] ?></textarea>
+		</label>
+	</p>
+	<p>
+		<label>
+			Email: 
+			<input type="email" name="email" value="<?php echo $profile["email"] ?>">
+		</label>
+	</p>
+	<p>
+		<label>
+			Bio: 
+			<input type="text" name="shortbio" value="<?php echo $profile["shortbio"] ?>">
+		</label>
+	</p>
+	<p>
+		<label>
+			Website: 
+			<input type="text" name="website" value="<?php echo $profile["website"] ?>">
+		</label>
+	</p>
+	<p>
+		<label>
+			Facebook username: 
+			<input type="text" name="facebook" value="<?php echo $profile["facebook"] ?>">
+		</label>
+	</p>
+	<p>
+		<label>
+			Twitter username: @ 
+			<input type="text" name="twitter" value="<?php echo $profile["twitter"] ?>">
+		</label>
+	</p>
+	<p>
+		<label>
+			Phone: 
+			<input type="tel" name="phone" value="<?php echo $profile["website"] ?>">
+		</label>
+	</p>
+	<h2>Change Password</h2>
+	<p>
+		<label>
+			Current Password: 
+			<input type="password" name="password_current">
+		</label>
+	</p>
+	<p>
+		<label>
+			New Password: 
+			<input type="password" name="password_new">
+		</label>
+	</p>
+	<p>
+		<button name="edit" type="submit" class="btn primary">Save Changes</button>
+	</p>
+</form>
+<?php } else { ?> 
 <h1><a href="<?php echo getSiteUrl() . "profile/" . $profile["username"]; ?>">@<?php echo $profile["username"]; ?></a></h1>
 <p><?php echo $profile["shortbio"]; ?></p>
 <div style="margin-bottom: 30px">
 	<?php if ($profile["username"] == $_SESSION["username"]) { ?>
-	<a href="#" class="btn">Edit your profile</a>
+	<a href="<?php echo getSiteUrl() . "profile/edit"; ?>" class="btn">Edit your profile</a>
 	<?php } else if (in_array($_SESSION["username"], unserialize($profile["listfollowers"]))) { ?>
 	<button class="btn unfollow-btn" data-user="<?php echo getSiteUrl() . "backend/unfollow.php?user=" . $profile["username"]; ?>">Unfollow</button>
 	<?php } else { ?>
@@ -60,7 +136,7 @@
 		<?php break;
 		default: ?>
 <div id="postscontent">Loading...</div>
-<div><button class="btn btn-secondary load-more" style="display: none">Load more</button></div>
+<div style="text-align: center; margin-top: 20px"><span class="load-more" style="display: none"><img alt="Loading" src="<?php echo getSiteUrl(); ?>assets/load.gif"></span></div>
 <script>
 	window.onload = function() {
 		offset = -<?php echo getMaxPosts(); ?>;
@@ -75,3 +151,4 @@
 		<?php break;
 	}
 ?>
+<?php } ?>

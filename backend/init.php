@@ -39,7 +39,7 @@
 			$_SESSION["username"] = $username;
 		}
 	}
-	function register($username, $password, $email) {
+	function register($username, $password, $email, $name) {
 		DB::query("SELECT * FROM user WHERE email=%s", $email);
 		$counter = DB::count();
 		if ($counter > 0) {
@@ -101,6 +101,28 @@
 	function getProfilePicture($username) {
 		$user = DB::queryFirstRow("SELECT email FROM user WHERE username=%s", $username);
 		return "https://secure.gravatar.com/avatar/" . md5($user["email"]) . "?s=96&d=mm&r=g";
+	}
+	function getShortBio($username) {
+		$user = DB::queryFirstRow("SELECT shortbio FROM user WHERE username=%s", $username);
+		return $user["shortbio"];
+	}
+	function updateUser($name, $hobbies, $email, $shortbio, $website, $facebook, $twitter, $phone, $password_current, $password_new) {
+		DB::update("user", array(
+			"name" => $name,
+			"listhobbies" => $hobbies,
+			"email" => $email,
+			"shortbio" => $shortbio,
+			"website" => $website,
+			"facebook" => $facebook,
+			"twitter" => $twitter,
+			"phone" => $phone
+		), "username=%s", $_SESSION["username"]);
+		$profile = DB::queryFirstRow("SELECT password FROM user WHERE username=%s", $_SESSION["username"]);
+		if (md5($password_current) == $profile["password"]) {
+			DB::update("user", array(
+				"password" => md5($password_new)
+			), "username=%s", $_SESSION["username"]);
+		}
 	}
 	function listUser($userProfile) {
 		if ($userProfile["username"] == $_SESSION["username"]) {
@@ -175,7 +197,7 @@
 	}
 
 	// Posts
-	function savePost($title, $tags, $content, $status) {
+	function savePost($title, $tags, $content, $status, $extratag1, $extratag2, $extratag3, $extratag4, $extratag5) {
 		$slug = str_replace(' ', '-', $title);
 		$slug = strtolower(preg_replace('/[^A-Za-z0-9\-]/', '', $slug));
 		$letters = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890";
@@ -188,12 +210,46 @@
 			"tags" => $tags,
 			"status" => $status,
 			"content" => $content,
-			"postedon" => date("Y-m-d h:i:sa")
+			"extratag1" => $extratag1,
+			"extratag2" => $extratag2,
+			"extratag3" => $extratag3,
+			"extratag4" => $extratag4,
+			"extratag5" => $extratag5,
+			"postedon" => date("Y-m-d h:i:sa"),
+			"updatedon" => date("Y-m-d h:i:sa")
 		));
+		header("Location: ../post/" . $slug);
+	}
+	function updatePost($title, $tags, $content, $status, $slug) {
+		if ($tags == "Change category") {
+			DB::update("posts", array(
+			"author" => $_SESSION["username"],
+			"title" => $title,
+			"status" => $status,
+			"content" => $content,
+			"updatedon" => date("Y-m-d h:i:sa")
+		), "slug=%s", $slug);
+		} else {
+			DB::update("posts", array(
+			"author" => $_SESSION["username"],
+			"title" => $title,
+			"tags" => $tags,
+			"status" => $status,
+			"content" => $content,
+			"updatedon" => date("Y-m-d h:i:sa")
+		), "slug=%s", $slug);
+		}
 		header("Location: ../post/" . $slug);
 	}
 	function getPost($slug) {
 		return DB::queryFirstRow("SELECT * FROM posts WHERE slug=%s", $slug);
+	}
+	function deletePost($slug) {
+		$post = DB::queryFirstRow("SELECT author FROM posts WHERE slug=%s", $slug);
+		if ($post["author"] == $_SESSION["username"]) {
+			DB::delete("posts", "slug=%s", $slug);
+		}
+		header("Location: " . getSiteUrl() . "profile/" . $_SESSION["username"]);
 	}
 	function getSummary($content) {
 		$content = preg_replace("/\r|\n/", " ", $content);

@@ -1,3 +1,14 @@
+<?php
+	$visible = 0;
+	if ($post["status"] == "draft") {
+		if ($post["author"] == $_SESSION["username"]) {
+			$visible = 1;
+		}
+	} else {
+		$visible = 1;
+	}
+	if ($visible == 1) {
+?>
 <h1><?php echo $post["title"]; ?></h1>
 <p>Posted <?php echo time_elapsed_string($post["postedon"]); ?> under <a href="<?php echo getSiteUrl() . "category/" . $post["tags"]; ?>"><?php echo fCategory($post["tags"]); ?></a></p>
 <div style="margin-bottom: 30px"><?php echo $post["content"]; ?></div>
@@ -11,3 +22,7 @@
 	<a href="<?php echo getSiteUrl() . "profile/" . $user["username"]; ?>" style="font-weight: bold; display: block"><?php echo $user["name"]; ?></a>
 	<?php echo $user["shortbio"]; ?>
 </address>
+<?php } else { ?>
+<h1>Permission Needed</h1>
+<p>You don't have the permission to access this draft.</p>
+<?php } ?>

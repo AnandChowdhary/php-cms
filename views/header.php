@@ -21,8 +21,14 @@
 		$category_name = fCategory($category);
 		$page_title = $category_name . " | " . $site -> name;
 	} elseif ($page == "profile") {
-		$profile = getProfile($_GET["username"]);
-		$page_title = $profile["name"] . " (@" . $profile["username"] . ") | " . $site -> name;
+		if ($_GET["username"] == "edit") {
+			$page_title = "Edit Profile | " . $site -> name;
+			$editProfile = 1;
+		} else {
+			$editProfile = 0;
+			$profile = getProfile($_GET["username"]);
+			$page_title = $profile["name"] . " (@" . $profile["username"] . ") | " . $site -> name;
+		}
 	}
 ?>
 <!doctype html>
@@ -70,8 +76,9 @@
 			label { display: block }
 			input, textarea, select { background: #fff; height: 40px; display: block; width: 100%; font: inherit; margin: 10px 0; padding: 7px 10px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px; }
 			textarea { height: auto }
-			.btn { display: inline-block; background: whitesmoke; font: inherit; color: inherit; text-decoration: none; border: 1px solid #ddd; padding: 7px 10px; border-radius: 4px; }
-			.btn.primary { background: #69e; color: #fff; border-color: rgba(0, 0, 0, 0.03); }
+			.btn { display: inline-block; background: whitesmoke; font: inherit; color: inherit; text-decoration: none; border: 1px solid #ddd; padding: 7px 10px; border-radius: 4px; margin-right: 5px; }
+			.btn.primary { background: #46f; color: #fff; border-color: rgba(0, 0, 0, 0.03); }
+			.btn.danger { background: #f33; color: #fff; border-color: rgba(0, 0, 0, 0.03) }
 			.active { font-weight: bold; }
 		</style>
 	</head>
