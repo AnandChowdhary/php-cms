@@ -70,6 +70,14 @@
 		DB::query("SELECT id FROM posts WHERE author=%s", $username);
 		return DB::count();
 	}
+	function getFollowing($username) {
+		$user = DB::queryFirstRow("SELECT listfollowing FROM user WHERE username=%s", $username);
+		return unserialize($user["listfollowing"]);
+	}
+	function getFollowers($username) {
+		$user = DB::queryFirstRow("SELECT listfollowers FROM user WHERE username=%s", $username);
+		return unserialize($user["listfollowers"]);
+	}
 
 	// Nav links
 	function currUrl($url) {
@@ -84,24 +92,71 @@
 		$user = DB::queryFirstRow("SELECT email FROM user WHERE username=%s", $username);
 		return "https://secure.gravatar.com/avatar/" . md5($user["email"]) . "?s=96&d=mm&r=g";
 	}
+	function listUser($userProfile) {
+		echo "<a href='" . $site -> url . "profile/" . $userProfile["username"] . "' style='margin-bottom: 10px; display: block; text-decoration: none; line-height: 1.5; border-radius: 4px; padding: 15px; border: 1px solid #ccc;'>
+			<img style='height: 3em; float: left; margin-right: 15px; border-radius: 100%' alt='" . $userProfile["name"] . "' src='" . getProfilePicture($userProfile["username"]) . "'>
+			<strong>" . $userProfile["name"] . "</strong><br>
+			" . $userProfile["shortbio"] . "
+		</a>";
+	}
+	function followUser($user) {
+		$account = DB::queryFirstRow("SELECT followers, listfollowers FROM user WHERE username=%s", $user);
+		$followers = intval($account["followers"]);
+		if ($account["listfollowers"] == "[]") {
+			$listFollowers = array();
+		} else {
+			$listFollowers = unserialize($account["listfollowers"]);
+		}
+		array_push($listFollowers, $_SESSION["username"]);
+		DB::update("user", array(
+			"followers" => ($followers + 1),
+			"listfollowers" => serialize($listFollowers)
+		), "username=%s", $user);
+		$account = DB::queryFirstRow("SELECT following, listfollowing FROM user WHERE username=%s", $_SESSION["username"]);
+		$followers = intval($account["following"]);
+		if ($account["listfollowing"] == "[]") {
+			$listFollowers = array();
+		} else {
+			$listFollowers = unserialize($account["listfollowing"]);
+		}
+		array_push($listFollowers, $user);
+		DB::update("user", array(
+			"following" => ($followers + 1),
+			"listfollowing" => serialize($listFollowers)
+		), "username=%s", $_SESSION["username"]);
+	}
+	function unfollowUser($user) {
+		$account = DB::queryFirstRow("SELECT followers, listfollowers FROM user WHERE username=%s", $user);
+		$followers = intval($account["followers"]);
+		if ($account["listfollowers"] == "[]") {
+			$listFollowers = array();
+		} else {
+			$listFollowers = unserialize($account["listfollowers"]);
+		}
+		if (($key = array_search($_SESSION["username"], $listFollowers)) !== false) {
+			unset($listFollowers[$key]);
+		}
+		DB::update("user", array(
+			"followers" => ($followers - 1),
+			"listfollowers" => serialize($listFollowers)
+		), "username=%s", $user);
+		$account = DB::queryFirstRow("SELECT following, listfollowing FROM user WHERE username=%s", $_SESSION["username"]);
+		$followers = intval($account["following"]);
+		if ($account["listfollowing"] == "[]") {
+			$listFollowers = array();
+		} else {
+			$listFollowers = unserialize($account["listfollowing"]);
+		}
+		if (($key = array_search($user, $listFollowers)) !== false) {
+			unset($listFollowers[$key]);
+		}
+		DB::update("user", array(
+			"following" => ($followers - 1),
+			"listfollowing" => serialize($listFollowers)
+		), "username=%s", $_SESSION["username"]);
+	}
 
 	// Posts
-	function archive($type, $a, $b) {
-		if ($type == "author") {
-			return DB::query("SELECT slug, postedon, content, title FROM posts WHERE author=%s", $a);
-		} elseif ($type == "category") {
-			return DB::query("SELECT slug, postedon, content, title FROM posts WHERE tags=%s", $a);
-		} elseif ($type == "both") {
-			return DB::query("SELECT slug, postedon, content, title FROM posts WHERE author=%s AND category=%s", $a, $b);
-		} else {
-			return DB::query("SELECT slug, postedon, content, title FROM posts");
-		}
-	}
-	function listArchive($posts) {
-		foreach ($posts as $post) {
-			echo "<a href='" . $site -> url . "post/" . $post["slug"] . "' style='margin-bottom: 10px; display: block; text-decoration: none; line-height: 1.5; border-radius: 4px; padding: 15px; border: 1px solid #ccc;'><div><strong>" . $post["title"] . "</strong></div><div>" . getSummary($post["content"]) . "</div></a>";
-		}
-	}
 	function savePost($title, $tags, $content) {
 		$slug = str_replace(' ', '-', $title);
 		$slug = strtolower(preg_replace('/[^A-Za-z0-9\-]/', '', $slug));
@@ -122,6 +177,7 @@
 		return DB::queryFirstRow("SELECT * FROM posts WHERE slug=%s", $slug);
 	}
 	function getSummary($content) {
+		$content = preg_replace("/\r|\n/", " ", $content);
 		$content = strip_tags($content);
 		$content = str_replace('"', '', $content);
 		$content = substr($content, 0, 200);
@@ -176,6 +232,10 @@
 		}
 		if (!$full) $string = array_slice($string, 0, 1);
 		return $string ? implode(", ", $string) . " ago" : "just now";
+	}
+	function fCategory($slug) {
+		$row = DB::queryFirstRow("SELECT title FROM categories WHERE slug=%s", $slug);
+		return $row["title"];
 	}
 
 ?>

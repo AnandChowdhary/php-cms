@@ -1,4 +1,4 @@
-<h1>Welcome to <?php echo $site -> name; ?></h1>
+<h1><?php echo $category_name; ?></h1>
 <div id="content">Loading...</div>
 <div><button class="btn btn-secondary load-more" style="display: none">Load more</button></div>
 <script>
@@ -14,7 +14,7 @@
 	});
 	function sendRequest(offset) {
 		var request = new XMLHttpRequest();
-		request.open("GET", "<?php echo $site -> url; ?>backend/archive.php?offset=" + offset, true);
+		request.open("GET", "<?php echo $site -> url; ?>backend/archive.php?offset=" + offset + "&type=category&a=<?php echo $_GET["slug"]; ?>", true);
 		request.onload = function() {
 			if (request.status >= 200 && request.status < 400) {
 				if (request.responseText == "") {

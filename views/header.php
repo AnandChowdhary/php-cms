@@ -16,11 +16,16 @@
 			$keywords .= $key . ", ";
 		}
 		$keywords = substr($keywords, 0, -2);
+	} elseif ($page == "category") {
+		$category = $_GET["slug"];
+		$category_name = fCategory($category);
+		$page_title = $category_name . " | " . $site -> name;
 	}
 ?>
 <!doctype html>
-<html>
+<html lang="en" prefix="op: http://media.facebook.com/op#">
 	<head>
+		<meta charset="utf-8">
 		<title><?php echo $page_title; ?></title>
 		<?php if ($page == "post") { ?><meta property="og:type" content="article">
 		<meta property="og:url" content="<?php echo $site -> url . "post/" . $_GET["slug"]; ?>">
@@ -33,15 +38,22 @@
 		<meta property="article:tag" content="<?php echo $keywords; ?>">
 		<meta property="article:author" content="<?php echo $user["name"]; ?>">
 		<meta property="article:publisher" content="<?php echo $site -> facebookUsername; ?>">
-		<meta name="twitter:card" content="summary">
-		<meta name="twitter:site" content="<?php echo $site -> twitterHandle; ?>">
 		<meta name="twitter:title" content="<?php echo $post["title"]; ?>">
 		<meta name="twitter:description" content="<?php echo getSummary($post["content"]); ?>">
 		<meta name="title" content="<?php echo $page_title; ?>">
 		<meta name="description" content="<?php echo getSummary($post["content"]); ?>">
 		<meta name="keywords" content="<?php echo $keywords; ?>">
 		<meta name="author" content="<?php echo $user["name"]; ?>">
+		<link rel="canonical" href="<?php echo $site -> url . "post/" . $_GET["slug"]; ?>">
+		<meta property="op:markup_version" content="v1.0">
+		<?php } elseif ($page == "category") { ?><link rel="canonical" href="<?php echo $site -> url . "category/" . $_GET["slug"]; ?>">
+		<meta property="og:url" content="<?php echo $site -> url . "category/" . $_GET["slug"]; ?>">
+		<meta property="og:title" content="<?php echo $page_title; ?>">
+		<meta name="twitter:title" content="<?php echo $page_title; ?>">
 		<?php } ?><meta property="og:site_name" content="<?php echo $site -> name; ?>">
+		<meta name="twitter:card" content="summary">
+		<meta name="twitter:site" content="<?php echo $site -> twitterHandle; ?>">
+		<!-- Custom code -->
 		<style>
 			body { max-width: 600px; margin: 50px auto; font: menu; font-size: 100% }
 			nav { background: whitesmoke; padding: 20px }

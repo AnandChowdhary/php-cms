@@ -1,5 +1,6 @@
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^category/([a-zA-Z0-9_-]+)$ index.php?page=category&slug=$1
 RewriteRule ^profile/([a-zA-Z0-9_-]+)$ index.php?page=profile&username=$1
 RewriteRule ^profile/([a-zA-Z0-9_-]+)/$ index.php?page=profile&username=$1
 RewriteRule ^profile/([a-zA-Z0-9_-]+)/([a-z]+)$ index.php?page=profile&username=$1&tab=$2
